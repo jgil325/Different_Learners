@@ -40,6 +40,7 @@ import numpy as np
 import LinRegLearner as lrl
 import DTLearner as dt
 import BagLearner as bl
+import RTLearner as rt
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
@@ -66,6 +67,7 @@ if __name__ == "__main__":
     print(f"{test_y.shape}")
 
     # -----------LIN REG LEARNER---------------------------------------------------------------------------------------
+    print("-----------LIN REG LEARNER------------")
     # create a learner and train it 
     learner = lrl.LinRegLearner(verbose=True)  # create a LinRegLearner 
     learner.add_evidence(train_x, train_y)  # train it 
@@ -90,6 +92,7 @@ if __name__ == "__main__":
     print(f"corr: {c[0, 1]}")
 
     # -----------DT LEARNER-----------------------------------------------------------------------------------------
+    print("-----------DT LEARNER------------")
     # create a learner and train it
     test_dt_learner = dt.DTLearner(leaf_size=1, verbose=False)  # constructor
     test_dt_learner.add_evidence(train_x, train_y)  # train it
@@ -113,7 +116,33 @@ if __name__ == "__main__":
     c = np.corrcoef(pred_y, y=test_y)
     print(f"corr: {c[0, 1]}")
 
+    # -----------RT LEARNER-----------------------------------------------------------------------------------------
+    print("-----------RT LEARNER------------")
+    # create a learner and train it
+    test_rt_learner = rt.RTLearner(leaf_size=1, verbose=False)  # constructor
+    test_rt_learner.add_evidence(train_x, train_y)  # train it
+    print(test_rt_learner.author())
+
+    # evaluate in sample
+    pred_y = test_rt_learner.query(train_x)  # get the predictions
+    rmse = math.sqrt(((train_y - pred_y) ** 2).sum() / train_y.shape[0])
+    print()
+    print("In sample results")
+    print(f"RMSE: {rmse}")
+    c = np.corrcoef(pred_y, y=train_y)
+    print(f"corr: {c[0, 1]}")
+
+    # evaluate out of sample
+    pred_y = test_rt_learner.query(test_x)  # get the predictions
+    rmse = math.sqrt(((test_y - pred_y) ** 2).sum() / test_y.shape[0])
+    print()
+    print("Out of sample results")
+    print(f"RMSE: {rmse}")
+    c = np.corrcoef(pred_y, y=test_y)
+    print(f"corr: {c[0, 1]}")
+
     # -----------BAG LEARNER 1-----------------------------------------------------------------------------------------
+    print("-----------BAG LEARNER 1------------")
     # create a learner and train it
     test_bag_learner = bl.BagLearner(learner=dt.DTLearner, kwargs={"leaf_size": 1}, bags=20, boost=False, verbose=False)
     test_bag_learner.add_evidence(train_x, train_y)  # train it
@@ -138,8 +167,9 @@ if __name__ == "__main__":
     print(f"corr: {c[0, 1]}")
 
     # -----------BAG LEARNER 2-----------------------------------------------------------------------------------------
+    print("-----------BAG LEARNER 2------------")
     # create a learner and train it
-    test_bag_learner = bl.BagLearner(learner = lrl.LinRegLearner, kwargs = {}, bags = 10, boost = False, verbose = False)
+    test_bag_learner = bl.BagLearner(learner=lrl.LinRegLearner, kwargs={}, bags=10, boost=False, verbose=False)
     test_bag_learner.add_evidence(train_x, train_y)  # train it
     print(test_bag_learner.author())
 
