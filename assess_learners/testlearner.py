@@ -41,6 +41,7 @@ import LinRegLearner as lrl
 import DTLearner as dt
 import BagLearner as bl
 import RTLearner as rt
+import InsaneLearner as it
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
@@ -184,6 +185,31 @@ if __name__ == "__main__":
 
     # evaluate out of sample
     pred_y = test_bag_learner.query(test_x)  # get the predictions
+    rmse = math.sqrt(((test_y - pred_y) ** 2).sum() / test_y.shape[0])
+    print()
+    print("Out of sample results")
+    print(f"RMSE: {rmse}")
+    c = np.corrcoef(pred_y, y=test_y)
+    print(f"corr: {c[0, 1]}")
+
+    # -----------INSANE LEARNER-----------------------------------------------------------------------------------------
+    print("-----------INSANE LEARNER------------")
+    # create a learner and train it
+    test_ins_learner = it.InsaneLearner(verbose = False) # constructor
+    test_ins_learner.add_evidence(train_x, train_y)  # train it
+    print(test_ins_learner.author())
+
+    # evaluate in sample
+    pred_y = test_ins_learner.query(train_x)  # get the predictions
+    rmse = math.sqrt(((train_y - pred_y) ** 2).sum() / train_y.shape[0])
+    print()
+    print("In sample results")
+    print(f"RMSE: {rmse}")
+    c = np.corrcoef(pred_y, y=train_y)
+    print(f"corr: {c[0, 1]}")
+
+    # evaluate out of sample
+    pred_y = test_ins_learner.query(test_x)  # get the predictions
     rmse = math.sqrt(((test_y - pred_y) ** 2).sum() / test_y.shape[0])
     print()
     print("Out of sample results")
